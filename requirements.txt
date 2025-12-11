@@ -1,4 +1,18 @@
-fastapi==0.104.1
-uvicorn==0.24.0
-requests==2.31.0
-pydantic==2.5.0
+# FastAPI and Server
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+python-multipart==0.0.12
+
+# Pydantic for data validation (Python 3.13 compatible)
+pydantic==2.9.2
+pydantic-settings==2.6.1
+
+# HTTP client
+requests==2.32.3
+
+# Python dotenv for environment variables
+python-dotenv==1.0.1
+
+# Logging
+colorlog==6.9.0
+
