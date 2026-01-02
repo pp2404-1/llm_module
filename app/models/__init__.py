@@ -1,5 +1,3 @@
-"""Pydantic models for request/response validation"""
-
 from app.models.schemas import (
     SurveyRequest,
     QuestionItem,

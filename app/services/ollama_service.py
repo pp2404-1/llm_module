@@ -1,8 +1,3 @@
-"""
-Ollama API interaction service
-Handles communication with Ollama LLM
-"""
-
 import requests
 import logging
 from typing import Dict, Optional
@@ -12,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 
 class OllamaService:
-    """Service for interacting with Ollama API"""
     
     def __init__(self):
         self.ollama_url = settings.ollama_url
@@ -20,22 +14,8 @@ class OllamaService:
         self.timeout = settings.request_timeout
         
     def generate(self, prompt: str, options: Optional[Dict] = None) -> str:
-        """
-        Generate text using Ollama LLM
+        logger.info(f"Sending request to Ollama with model {self.model_name}")
         
-        Args:
-            prompt: The prompt to send to the LLM
-            options: Optional generation parameters
-            
-        Returns:
-            Generated text
-            
-        Raises:
-            Exception: If generation fails
-        """
-        logger.info(f"🤖 Sending request to Ollama with model {self.model_name}")
-        
-        # Prepare generation options
         if options is None:
             options = {
                 "temperature": settings.default_temperature,
@@ -59,37 +39,31 @@ class OllamaService:
             
             if response.status_code != 200:
                 error_msg = f"Ollama API error: {response.status_code} - {response.text}"
-                logger.error(f"❌ {error_msg}")
+                logger.error(error_msg)
                 raise Exception(error_msg)
             
             result = response.json()
             generated_text = result.get('response', '')
             
-            logger.info(f"✅ Successfully received response from Ollama ({len(generated_text)} chars)")
+            logger.info(f"Successfully received response from Ollama ({len(generated_text)} chars)")
             return generated_text
             
         except requests.exceptions.Timeout:
             error_msg = f"LLM service timeout - модель не ответила за {self.timeout} секунд"
-            logger.error(f"⏱️ {error_msg}")
+            logger.error(error_msg)
             raise Exception(error_msg)
             
         except requests.exceptions.ConnectionError as e:
             error_msg = "Не удалось подключиться к Ollama. Проверьте, запущен ли Ollama"
-            logger.error(f"🔌 {error_msg}: {str(e)}")
+            logger.error(f"{error_msg}: {str(e)}")
             raise Exception(error_msg)
             
         except Exception as e:
             error_msg = f"Ошибка при вызове LLM: {str(e)}"
-            logger.error(f"❌ {error_msg}")
+            logger.error(error_msg)
             raise Exception(error_msg)
     
     def check_health(self) -> Dict:
-        """
-        Check if Ollama service is healthy
-        
-        Returns:
-            Health status dictionary
-        """
         try:
             health_url = settings.get_ollama_health_url()
             logger.debug(f"Checking Ollama health at {health_url}")
@@ -103,14 +77,14 @@ class OllamaService:
                 )
                 
                 if model_available:
-                    logger.info(f"✅ Ollama is healthy, model {self.model_name} is available")
+                    logger.info(f"Ollama is healthy, model {self.model_name} is available")
                     return {
                         "status": "healthy",
                         "model_available": True,
                         "message": f"Model {self.model_name} is available"
                     }
                 else:
-                    logger.warning(f"⚠️ Ollama is running but model {self.model_name} not found")
+                    logger.warning(f"Ollama is running but model {self.model_name} not found")
                     available_models = [m.get('name') for m in models]
                     return {
                         "status": "partial",
@@ -118,7 +92,7 @@ class OllamaService:
                         "message": f"Model {self.model_name} not found. Available models: {available_models}"
                     }
             else:
-                logger.error(f"❌ Ollama health check failed with status {response.status_code}")
+                logger.error(f"Ollama health check failed with status {response.status_code}")
                 return {
                     "status": "unhealthy",
                     "model_available": False,
@@ -126,7 +100,7 @@ class OllamaService:
                 }
                 
         except requests.exceptions.ConnectionError:
-            logger.error("❌ Cannot connect to Ollama service")
+            logger.error("Cannot connect to Ollama service")
             return {
                 "status": "unhealthy",
                 "model_available": False,
@@ -134,7 +108,7 @@ class OllamaService:
             }
             
         except Exception as e:
-            logger.error(f"❌ Health check error: {str(e)}")
+            logger.error(f"Health check error: {str(e)}")
             return {
                 "status": "unhealthy",
                 "model_available": False,

@@ -1,0 +1,60 @@
+# Virtual environment
+venv
+.venv
+env
+.env
+
+# Python cache
+__pycache__
+*.py[cod]
+*$py.class
+*.pyo
+.Python
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Tests
+tests
+.pytest_cache
+.coverage
+htmlcov
+
+# Logs
+logs
+*.log
+
+# Documentation
+*.md
+!README.md
+
+# Scripts (not needed in container)
+*.bat
+*.sh
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Config files (we use env vars in Docker)
+config/
+
+# Development requirements
+requirements-dev.txt
+
+# Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints
+

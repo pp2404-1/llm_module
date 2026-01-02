@@ -1,8 +1,3 @@
-"""
-API Routes
-Defines all HTTP endpoints for the LLM service
-"""
-
 import logging
 from fastapi import APIRouter, HTTPException, status
 from app.models.schemas import (
@@ -19,16 +14,12 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Initialize services
 survey_service = SurveyService()
 ollama_service = OllamaService()
 
 
 @router.get("/", tags=["Root"])
 async def root():
-    """
-    Root endpoint - Service information
-    """
     return {
         "message": "LLM Service is running!",
         "version": settings.app_version,
@@ -47,18 +38,10 @@ async def root():
     description="Check health of LLM service and Ollama connectivity"
 )
 async def health_check():
-    """
-    Health check endpoint
-    
-    Returns:
-        HealthResponse: Service health status
-    """
     try:
-        # Check Ollama service
         ollama_health = ollama_service.check_health()
         ollama_status = ollama_health.get("status", "unknown")
         
-        # Determine overall status
         service_status = "healthy" if ollama_status == "healthy" else "degraded"
         
         logger.info(f"Health check: service={service_status}, ollama={ollama_status}")
@@ -104,22 +87,9 @@ async def health_check():
     }
 )
 async def generate_survey(request: SurveyRequest):
-    """
-    Generate a survey using AI based on a theme
-    
-    Args:
-        request: Survey generation request with theme, question count, and answer count
-        
-    Returns:
-        SurveyResponse: Generated survey with questions and answers
-        
-    Raises:
-        HTTPException: If validation fails
-    """
     try:
-        logger.info(f"📥 Received survey generation request: theme='{request.theme}'")
+        logger.info(f"Received survey generation request: theme='{request.theme}'")
         
-        # Validate request parameters
         if request.questionCount < settings.min_questions:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -144,20 +114,19 @@ async def generate_survey(request: SurveyRequest):
                 detail=f"Answers per question cannot exceed {settings.max_answers}"
             )
         
-        # Generate survey
         response = survey_service.generate_survey(request)
         
         if response.errorMessage:
-            logger.warning(f"⚠️ Survey generation completed with error: {response.errorMessage}")
+            logger.warning(f"Survey generation completed with error: {response.errorMessage}")
         else:
-            logger.info(f"✅ Survey generation successful: {len(response.questions or [])} questions")
+            logger.info(f"Survey generation successful: {len(response.questions or [])} questions")
         
         return response
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"❌ Unexpected error in generate_survey endpoint: {str(e)}", exc_info=True)
+        logger.error(f"Unexpected error in generate_survey endpoint: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Internal server error: {str(e)}"
@@ -171,12 +140,6 @@ async def generate_survey(request: SurveyRequest):
     description="Get list of available LLM models from Ollama"
 )
 async def list_models():
-    """
-    Get list of available models from Ollama
-    
-    Returns:
-        Dict with available models
-    """
     try:
         health = ollama_service.check_health()
         return {

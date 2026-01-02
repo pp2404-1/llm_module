@@ -1,13 +1,8 @@
-"""
-Pydantic models for data validation
-"""
-
 from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
 
 
 class SurveyRequest(BaseModel):
-    """Request model for survey generation"""
     
     theme: str = Field(
         ..., 
@@ -34,7 +29,6 @@ class SurveyRequest(BaseModel):
     @field_validator('theme')
     @classmethod
     def validate_theme(cls, v: str) -> str:
-        """Validate and clean theme"""
         v = v.strip()
         if not v:
             raise ValueError("Theme cannot be empty")
@@ -51,7 +45,6 @@ class SurveyRequest(BaseModel):
 
 
 class QuestionItem(BaseModel):
-    """Model for a single question with answers"""
     
     question: str = Field(
         ...,
@@ -69,7 +62,6 @@ class QuestionItem(BaseModel):
     @field_validator('answers')
     @classmethod
     def validate_answers(cls, v: List[str]) -> List[str]:
-        """Validate answers are not empty"""
         cleaned = [ans.strip() for ans in v if ans.strip()]
         if len(cleaned) < 2:
             raise ValueError("At least 2 non-empty answers required")
@@ -85,7 +77,6 @@ class QuestionItem(BaseModel):
 
 
 class SurveyResponse(BaseModel):
-    """Response model for generated survey"""
     
     questions: Optional[List[QuestionItem]] = Field(
         default=None,
@@ -121,7 +112,6 @@ class SurveyResponse(BaseModel):
 
 
 class HealthResponse(BaseModel):
-    """Health check response"""
     
     status: str = Field(..., description="Service status")
     model: str = Field(..., description="LLM model name")
@@ -142,7 +132,6 @@ class HealthResponse(BaseModel):
 
 
 class ErrorResponse(BaseModel):
-    """Error response model"""
     
     error: str = Field(..., description="Error message")
     detail: Optional[str] = Field(default=None, description="Detailed error information")
